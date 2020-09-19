@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+}
+
+compileJava.options.encoding = 'UTF-8'
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+group 'it.fireentity'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    implementation files("D:\\Arenacraft Server\\spigot-1.12.2.jar")
+    compileOnly files("D:\\Arenacraft Server\\plugins\\arenaPermissions.jar")
+}
+
+shadowJar {
+    configurations = [project.configurations.compile]
+}
