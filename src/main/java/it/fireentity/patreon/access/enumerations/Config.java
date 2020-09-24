@@ -8,9 +8,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum Config {
-    ONLINE_TIME_CHECK_FREQUENCY("online_time_check_frequency"),
     JOIN_PERMISSION("join_permission"),
-    KICK_MESSAGE("kick_message");
+    KICK_MESSAGE("kick_message"),
+    INSUFFICIENT_PERMISSIONS("insufficient_permissions"),
+    INVALID_COMMAND_SENDER("invalid_command_sender"),
+    ADD_COMMAND_USAGE("add_command_usage"),
+    PLAYER_ALREADY_ADDED("player_already_added"),
+    ADD_COMMAND_SUCCESS("add_command_success"),
+    REMOVE_COMMAND_USAGE("remove_command_usage"),
+    REMOVE_COMMAND_SUCCESS("remove_command_success"),
+    PATREON_USAGE("patreon_usage"),
+    PATREON_NOT_FOUND("patreon_not_found"),
+    PATREON_ONLINE_TIME("patreon_online_time"),
+    REDIS_CHANNEL("redis_channel"),
+    TIME_PLACEHOLDER("time_placeholder"),
+    FALLBACK_PLACEHOLDER_STRING("fallback_placeholder_string"),
+    PATREON_TIME_EXPIRED_STRING("patreon_time_expired_string"),
+    PATREON_PLAYER_NOT_FOUND("patreon_player_not_found"),
+    PATREON_NOT_WHITELISTED("patreon_not_whitelisted");
 
     private final String message;
     private String modifiedPath;

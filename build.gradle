@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'kr.entree.spigradle' version '1.2.4'
     id "com.github.johnrengelman.shadow" version "5.2.0"
 }
 
@@ -19,6 +20,18 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
     implementation files("D:\\Arenacraft Server\\spigot-1.12.2.jar")
     compileOnly files("D:\\Arenacraft Server\\plugins\\arenaPermissions.jar")
+    compileOnly files("D:\\Arenacraft Server 1.8.8\\plugins\\DataCore.jar")
+    compileOnly files("D:\\Arenacraft Server 1.8.8\\plugins\\PlaceholderAPI-2.10.9.jar")
+}
+
+spigot {
+    depends = ["DataCore", "arenaPermissions"]
+    authors = ['Fireentity']
+    commands {
+        patreon {
+            description = 'The main plugin command'
+        }
+    }
 }
 
 shadowJar {

@@ -1,0 +1,8 @@
+main: it.fireentity.patreon.access.PatreonAccess
+name: PatreonAccess
+version: 1.0-SNAPSHOT
+authors: [Fireentity]
+depend: [DataCore, arenaPermissions]
+commands:
+  patreon:
+    description: The main plugin command

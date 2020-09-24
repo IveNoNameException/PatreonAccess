@@ -3,10 +3,6 @@ package it.fireentity.patreon.access.enumerations;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public enum Patreon {
     PATREON_NAME("%patreon.display_name"),
     PATREON_TIME("%patreon.max_online_time");
