@@ -1,58 +1,50 @@
 package it.fireentity.patreon.access.commands;
 
+import it.fireentity.library.command.argument.Command;
+import it.fireentity.library.command.nodes.CommandNode;
+import it.fireentity.library.command.row.CommandRow;
+import it.fireentity.library.player.CustomPlayer;
 import it.fireentity.patreon.access.PatreonAccess;
-import it.fireentity.patreon.access.api.command.ArgumentRaw;
-import it.fireentity.patreon.access.api.command.PluginCommand;
-import it.fireentity.patreon.access.entities.player.PatreonPlayer;
-import it.fireentity.patreon.access.enumerations.Config;
-import it.fireentity.patreon.access.enumerations.Permission;
-import org.bukkit.Bukkit;
+import it.fireentity.patreon.access.commands.arguments.PlayerArgument;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Optional;
 
-public class RemoveCommand extends PluginCommand {
+public class RemoveCommand extends Command {
+    private final PatreonAccess patreonAccess;
 
-    public RemoveCommand(PatreonAccess patreonAccess) {
-        super("remove", false, Permission.REMOVE_COMMAND_PERMISSION.getPermission(), patreonAccess);
+    public RemoveCommand(PatreonAccess patreonAccess, CommandNode mainCommandNode) {
+        super(patreonAccess,"remove",false,mainCommandNode);
+        this.addArgument(new PlayerArgument(patreonAccess, false));
+        this.addMessage(getPath() + ".player_already_removed");
+        this.addMessage(getSuccessPath());
+        this.patreonAccess = patreonAccess;
+
     }
 
     @Override
-    public void asyncExecute(CommandSender commandSender, List<String> args, ArgumentRaw argumentRaw) {
-        if (args.size() != 1) {
-            commandSender.sendMessage(Config.REMOVE_COMMAND_USAGE.getMessage());
+    public void execute(CommandSender commandSender, List<String> list, CommandRow commandRow) {
+
+        Optional<CustomPlayer> customPlayer = Optional.empty();
+        if (commandRow.isSpecified("player")) {
+            customPlayer = commandRow.getOne("player");
+        }
+
+        if(!customPlayer.isPresent()) {
             return;
         }
 
-        if(argumentRaw.isSpecified("player")) {
-            Optional<String> player = argumentRaw.getOne("player");
-            if(player.isPresent()) {
-                if(!getPatreonAccess().getWhitelist().isWhitelisted(player.get())) {
-                    commandSender.sendMessage(Config.PATREON_NOT_WHITELISTED.getMessage());
-                    return;
-                }
-
-                Bukkit.getScheduler().runTaskAsynchronously(getPatreonAccess(), () -> {
-                    getPatreonAccess().getWhitelist().removePlayer(args.get(0));
-                });
-
-
-                Player target = Bukkit.getPlayer(player.get());
-                if(target == null) {
-                    return;
-                }
-
-                Optional<PatreonPlayer> patreonPlayer = getPatreonAccess().getPatreonPlayerCache().getPlayer(target);
-                if(!patreonPlayer.isPresent()) {
-                    commandSender.sendMessage(Config.PATREON_NOT_WHITELISTED.getMessage());
-                    return;
-                } else {
-                    getPatreonAccess().getPatreonPlayerCache().removePlayer(patreonPlayer.get());
-                }
-                commandSender.sendMessage(Config.REMOVE_COMMAND_SUCCESS.getMessage());
-            }
+        //Check if the player is already removed
+        if(patreonAccess.getWhitelist().getWhitelistedPlayers().contains(customPlayer.get().getKey())) {
+            patreonAccess.getLocales().sendMessage(getPath() + ".player_already_removed",commandSender);
+            return;
         }
+
+        Optional<CustomPlayer> finalCustomPlayer = customPlayer;
+        patreonAccess.getServer().getScheduler().runTaskAsynchronously(patreonAccess, () -> {
+            patreonAccess.getWhitelist().removePlayer(finalCustomPlayer.get().getKey());
+        });
+        getPlugin().getLocales().sendMessage(getSuccessPath(), commandSender);
     }
 }

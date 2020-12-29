@@ -5,9 +5,9 @@ import it.arenacraft.data.core.api.RedisConnection;
 import it.arenacraft.data.core.api.RedisData;
 import it.arenacraft.permissions.Base;
 import it.fireentity.patreon.access.PatreonAccess;
-import it.fireentity.patreon.access.entities.player.PatreonPlayer;
-import it.fireentity.patreon.access.entities.vip.PatreonVip;
-import it.fireentity.patreon.access.entities.whitelist.Whitelist;
+import it.fireentity.patreon.access.entities.PatreonPlayer;
+import it.fireentity.patreon.access.entities.PatreonVip;
+import it.fireentity.patreon.access.entities.Whitelist;
 import it.fireentity.patreon.access.enumerations.Config;
 import it.fireentity.patreon.access.storage.mysql.WhitelistDatabaseUtility;
 import org.bukkit.Bukkit;
@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -43,11 +42,9 @@ public class PatreonPlayerCache implements Listener {
             String json = redisConnection.get("patreonaccess:players:" + event.getName());
             Optional<PatreonPlayer> patreonPlayer;
             if(json == null) {
-                System.out.println("Mysql");
                 patreonPlayer = whitelistDatabaseUtility.loadPlayer(event.getName());
                 patreonPlayer.ifPresent(player -> redisConnection.set("patreonaccess:players:" + event.getName(), new Gson().toJson(player)));
             } else {
-                System.out.println("Redis");
                 Gson gson = new Gson();
                 patreonPlayer = Optional.of(gson.fromJson(json, PatreonPlayer.class));
                 patreonPlayer.get().setJoinedTime(System.currentTimeMillis());
@@ -60,11 +57,16 @@ public class PatreonPlayerCache implements Listener {
     public void onPlayerJoin(PlayerLoginEvent event) {
         if (whitelist.isWhitelisted(event.getPlayer().getName())) {
             if (patreonPlayerHashMap.get(event.getPlayer().getName()).isExceeded()) {
-                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Config.KICK_MESSAGE.getMessage());
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, patreonAccess.getLocales().getString(Config.KICK_MESSAGE.getPath()));
                 patreonPlayerHashMap.remove(event.getPlayer().getName());
                 return;
             }
-            Base.addTempPermission(event.getPlayer(), Config.JOIN_PERMISSION.getMessage());
+            if(patreonAccess.getLocales().hasPath(Config.JOIN_PERMISSION.getPath())) {
+                Base.addTempPermission(event.getPlayer(), Config.JOIN_PERMISSION.getPath());
+            } else {
+                System.out.println(patreonAccess.getLocales().getString(Config.JOIN_PERMISSION.getPath()));
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, patreonAccess.getLocales().getString(Config.KICK_MESSAGE.getPath()));
+            }
         }
     }
 

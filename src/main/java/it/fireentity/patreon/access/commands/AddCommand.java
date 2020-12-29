@@ -1,61 +1,63 @@
 package it.fireentity.patreon.access.commands;
 
+import it.fireentity.library.command.argument.Command;
+import it.fireentity.library.command.nodes.CommandNode;
+import it.fireentity.library.command.row.CommandRow;
+import it.fireentity.library.player.CustomPlayer;
 import it.fireentity.patreon.access.PatreonAccess;
-import it.fireentity.patreon.access.api.command.ArgumentRaw;
-import it.fireentity.patreon.access.api.command.PluginCommand;
-import it.fireentity.patreon.access.entities.vip.PatreonVip;
-import it.fireentity.patreon.access.enumerations.Config;
-import it.fireentity.patreon.access.enumerations.Permission;
+import it.fireentity.patreon.access.cache.PatreonVipCache;
+import it.fireentity.patreon.access.commands.arguments.PatreonArgument;
+import it.fireentity.patreon.access.commands.arguments.PlayerArgument;
+import it.fireentity.patreon.access.entities.PatreonVip;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 import java.util.Optional;
 
-public class AddCommand extends PluginCommand {
+public class AddCommand extends Command {
+    private final PatreonAccess patreonAccess;
 
-    public AddCommand(PatreonAccess patreonAccess) {
-        super("add", false, Permission.ADD_COMMAND_PERMISSION.getPermission(), patreonAccess);
+    public AddCommand(PatreonAccess patreonAccess, PatreonVipCache patreonVipCache, CommandNode mainNode) {
+        super(patreonAccess,"add",false,mainNode);
+        this.addArgument(new PatreonArgument(patreonAccess,patreonVipCache,false)).addArgument(new PlayerArgument(patreonAccess,false));
+        this.patreonAccess = patreonAccess;
+        this.addMessage(getPath() + ".player_already_added","");
     }
 
     @Override
-    public void asyncExecute(CommandSender commandSender, List<String> args, ArgumentRaw argumentRaw) {
-        if(args.size() != 2) {
-            commandSender.sendMessage(Config.ADD_COMMAND_USAGE.getMessage());
+    public void execute(CommandSender commandSender, List<String> list, CommandRow commandRow) {
+
+        Optional<CustomPlayer> customPlayer = Optional.empty();
+        if(commandRow.isSpecified("player")) {
+            customPlayer = commandRow.getOne("player");
+        }
+
+        if(!customPlayer.isPresent()) {
             return;
         }
 
-        String target;
-        if(argumentRaw.isSpecified("player")) {
-            Optional<String> player = argumentRaw.getOne("player");
-            if(player.isPresent()) {
-                target = player.get();
-            } else {
-                return;
-            }
-        } else {
+        Optional<PatreonVip> patreonVip = Optional.empty();
+        if(commandRow.isSpecified("patreon")) {
+            patreonVip = commandRow.getOne("patreon");
+        }
+
+        if(!patreonVip.isPresent()) {
             return;
         }
 
-        PatreonVip patreonVip;
-        if(argumentRaw.isSpecified("patreon")) {
-            Optional<PatreonVip> optionalPatreonVip = argumentRaw.getOne("patreon");
-            if(optionalPatreonVip.isPresent()) {
-                patreonVip = optionalPatreonVip.get();
-            } else {
-                return;
-            }
-        } else {
+        //Check if the player is already whitelisted
+        if(patreonAccess.getWhitelist().getWhitelistedPlayers().contains(customPlayer.get().getKey())) {
+            getPlugin().getLocales().sendMessage(getPath() + ".player_already_added",commandSender);
             return;
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(getPatreonAccess(), () -> {
-            if(getPatreonAccess().getWhitelist().addPlayerWithDatabase(patreonVip, target)) {
-                getPatreonAccess().getPatreonPlayerCache().addPlayer(target, patreonVip.getPatreonName());
-                commandSender.sendMessage(Config.ADD_COMMAND_SUCCESS.getMessage());
-            } else {
-                commandSender.sendMessage(Config.PLAYER_ALREADY_ADDED.getMessage());
-            }
+        getPlugin().getLocales().sendMessage(getSuccessPath(), commandSender);
+        Optional<CustomPlayer> finalCustomPlayer = customPlayer;
+        Optional<PatreonVip> finalPatreonVip = patreonVip;
+        Bukkit.getScheduler().runTaskAsynchronously(this.getPlugin(), () -> {
+            patreonAccess.getWhitelist().addPlayer(finalCustomPlayer.get().getKey());
+            patreonAccess.getWhitelist().addPlayerWithDatabase(finalPatreonVip.get(),finalCustomPlayer.get().getKey());
         });
     }
 }

@@ -1,24 +1,20 @@
-package it.fireentity.patreon.access.entities.whitelist;
+package it.fireentity.patreon.access.entities;
 
-import it.fireentity.patreon.access.cache.PatreonPlayerCache;
+import it.fireentity.patreon.access.PatreonAccess;
 import it.fireentity.patreon.access.storage.mysql.WhitelistDatabaseUtility;
-import it.fireentity.patreon.access.entities.player.PatreonPlayer;
-import it.fireentity.patreon.access.entities.vip.PatreonVip;
-import it.fireentity.patreon.access.utils.PluginFile;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 public class Whitelist {
     private final List<String> whitelistedPlayers;
-    private final PluginFile whitelist;
     private final WhitelistDatabaseUtility whitelistDatabaseUtility;
+    private final PatreonAccess patreonAccess;
 
-    public Whitelist(PluginFile whitelist, WhitelistDatabaseUtility whitelistDatabaseUtility) {
+    public Whitelist(PatreonAccess patreonAccess, WhitelistDatabaseUtility whitelistDatabaseUtility) {
+        this.patreonAccess = patreonAccess;
         this.whitelistDatabaseUtility = whitelistDatabaseUtility;
-        this.whitelist = whitelist;
         whitelistedPlayers = whitelistDatabaseUtility.loadPlayers();
         whitelistedPlayers.addAll(whitelistDatabaseUtility.loadPlayers());
     }

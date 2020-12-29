@@ -1,59 +1,43 @@
 package it.fireentity.patreon.access.cache;
 
-import it.fireentity.patreon.access.entities.vip.PatreonVip;
-import it.fireentity.patreon.access.storage.mysql.PatreonTypesDatabaseUtility;
-import it.fireentity.patreon.access.enumerations.Patreon;
-import lombok.Getter;
-import org.bukkit.configuration.file.YamlConfiguration;
+import it.fireentity.library.storage.Cache;
+import it.fireentity.library.storage.DatabaseSynchronizer;
+import it.fireentity.library.utils.PluginFile;
+import it.fireentity.patreon.access.PatreonAccess;
+import it.fireentity.patreon.access.entities.PatreonVip;
+import it.fireentity.patreon.access.storage.mysql.PatreonVipsDatabaseUtility;
 
 import java.util.*;
 
-@Getter
 public class PatreonVipCache {
-    private final HashMap<String, PatreonVip> patreonVipList = new HashMap<>();
+    private final Cache<String, PatreonVip> cache = new Cache<>();
+    private final PluginFile pluginFile;
 
-    public PatreonVipCache(YamlConfiguration patreon, PatreonTypesDatabaseUtility patreonTypesDatabaseUtility) {
-
-        List<String> missingConfigMessages = new ArrayList<>();
-        List<String> missingDatabaseMessages = new ArrayList<>();
-        List<String> databaseMessages = patreonTypesDatabaseUtility.loadPatreonVips();
-        Set<String> configPatreons = patreon.getKeys(false);
-
-        //Check for differences between config and database
-        for (String patreonName : configPatreons) {
-            //Check if the message is into the config and not into the database
-            if (configPatreons.contains(patreonName) && !databaseMessages.contains(patreonName)) {
-                missingDatabaseMessages.add(patreonName);
-            }
-        }
-
-        for (String patreonName : databaseMessages) {
-            //Check if the message is into the database and not into the config
-            if (!configPatreons.contains(patreonName) && databaseMessages.contains(patreonName)) {
-                missingConfigMessages.add(patreonName);
-            }
-        }
-
-        //Adding missing messages into the database
-        for (String patreonName : missingDatabaseMessages) {
-            patreonTypesDatabaseUtility.insert(patreonName);
-        }
-
-        //Removing messages names from the database
-        for (String patreonName : missingConfigMessages) {
-            //Removing player active message
-            patreonTypesDatabaseUtility.remove(patreonName);
-        }
-
-        for (String patreonName : patreon.getKeys(false)) {
-            String patreonDisplayName = Patreon.PATREON_NAME.setPlaceholderAndReset("%patreon", patreonName).getMessage();
-            long patreonMaxOnlineTime = Patreon.PATREON_TIME.setPlaceholderAndReset("%patreon", patreonName).getLong();
-            PatreonVip patreonVip = new PatreonVip(patreonName, patreonDisplayName, patreonMaxOnlineTime);
-            patreonVipList.put(patreonVip.getPatreonName(), patreonVip);
+    public PatreonVipCache(PatreonAccess patreonAccess, PluginFile pluginFile, PatreonVipsDatabaseUtility patreonVipsDatabaseUtility) {
+        DatabaseSynchronizer<PatreonVip, String> synchronizer = new DatabaseSynchronizer<>(patreonAccess, patreonVipsDatabaseUtility);
+        this.pluginFile = pluginFile;
+        List<PatreonVip> patreonVipList = initializePatreonVip();
+        synchronizer.synchronize(patreonVipList);
+        for(PatreonVip patreonVip : patreonVipList) {
+            cache.addValue(patreonVip);
         }
     }
 
+    public List<PatreonVip> initializePatreonVip() {
+        List<PatreonVip> patreonVips = new ArrayList<>();
+        for(String patreon : pluginFile.getConfig().getKeys(false)) {
+            int maxOnlineTime = pluginFile.getConfig().getInt(patreon + ".max_online_time");
+            String displayName = pluginFile.getConfig().getString(patreon + ".display_name");
+            patreonVips.add(new PatreonVip(patreon,displayName,maxOnlineTime));
+        }
+        return patreonVips;
+    }
+
     public Optional<PatreonVip> getPatreonVip(String patreonName) {
-        return Optional.ofNullable(patreonVipList.get(patreonName));
+        return cache.getValue(patreonName);
+    }
+
+    public Collection<PatreonVip> getPatreonList() {
+        return cache.getValues();
     }
 }

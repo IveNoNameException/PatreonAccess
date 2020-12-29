@@ -4,8 +4,8 @@ import it.arenacraft.data.core.api.MysqlConnection;
 import it.arenacraft.data.core.api.MysqlData;
 import it.fireentity.patreon.access.PatreonAccess;
 import it.fireentity.patreon.access.cache.PatreonVipCache;
-import it.fireentity.patreon.access.entities.player.PatreonPlayer;
-import it.fireentity.patreon.access.entities.vip.PatreonVip;
+import it.fireentity.patreon.access.entities.PatreonPlayer;
+import it.fireentity.patreon.access.entities.PatreonVip;
 import it.fireentity.patreon.access.enumerations.Query;
 import lombok.Getter;
 
@@ -19,13 +19,13 @@ public class WhitelistDatabaseUtility {
 
     private final PatreonVipCache patreonVipCache;
     private final PlayersDatabaseUtility playersDatabaseUtility;
-    private final PatreonTypesDatabaseUtility patreonTypesDatabaseUtility;
+    private final PatreonVipsDatabaseUtility patreonVipsDatabaseUtility;
     private final PatreonAccess patreonAccess;
 
     public WhitelistDatabaseUtility(PatreonAccess patreonAccess) {
         this.patreonAccess = patreonAccess;
         playersDatabaseUtility = new PlayersDatabaseUtility();
-        patreonTypesDatabaseUtility = new PatreonTypesDatabaseUtility();
+        patreonVipsDatabaseUtility = new PatreonVipsDatabaseUtility();
         this.patreonVipCache = patreonAccess.getPatreonVipCache();
         try (MysqlConnection mysqlConnection = MysqlData.getConnection()) {
             mysqlConnection.executePreparedUpdate(Query.CREATE_WHITELIST_TABLE.getQuery());
@@ -40,10 +40,10 @@ public class WhitelistDatabaseUtility {
         try(MysqlConnection mysqlConnection = MysqlData.getConnection()) {
             mysqlConnection.executePreparedUpdate(Query.INSERT_WHITELISTED_PLAYER.getQuery(),
                     patreonPlayer.getPlayerName(),
-                    patreonPlayer.getPatreonVip().getPatreonName(),
+                    patreonPlayer.getPatreonVip().getKey(),
                     patreonPlayer.getCurrentPlayedTime(),
                     patreonPlayer.getPlayerName(),
-                    patreonPlayer.getPatreonVip().getPatreonName(),
+                    patreonPlayer.getPatreonVip().getKey(),
                     patreonPlayer.getCurrentPlayedTime());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -87,5 +87,22 @@ public class WhitelistDatabaseUtility {
             e.printStackTrace();
         }
         return Optional.empty();
+    }
+
+    public List<PatreonPlayer> loadPatreonPlayers() {
+        List<PatreonPlayer> patreonPlayers = new ArrayList<>();
+        try(MysqlConnection mysqlConnection = MysqlData.getConnection()) {
+            MysqlConnection.PreparedResult preparedResult = mysqlConnection.executePreparedQuery(Query.SELECT_PATREON_PLAYERS.getQuery());
+            if(preparedResult.getResult().next()) {
+                String playerName = preparedResult.getResult().getString("hub_patreonaccess_players.player");
+                String vipName = preparedResult.getResult().getString("hub_patreonaccess_patreonTypes.patreonType");
+                long milliseconds = preparedResult.getResult().getLong("hub_patreonaccess_whitelist.milliseconds");
+                Optional<PatreonVip> patreonVip = patreonAccess.getPatreonVipCache().getPatreonVip(vipName);
+                patreonVip.ifPresent(vip -> patreonPlayers.add(new PatreonPlayer(vip, playerName, milliseconds)));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return patreonPlayers;
     }
 }

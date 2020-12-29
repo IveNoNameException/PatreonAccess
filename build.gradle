@@ -22,16 +22,12 @@ dependencies {
     compileOnly files("D:\\Arenacraft Server\\plugins\\arenaPermissions.jar")
     compileOnly files("D:\\Arenacraft Server 1.8.8\\plugins\\DataCore.jar")
     compileOnly files("D:\\Arenacraft Server 1.8.8\\plugins\\PlaceholderAPI-2.10.9.jar")
+    compileOnly files("D:\\Arenacraft Server 1.8.8\\plugins\\FireLibrary.jar")
 }
 
 spigot {
     depends = ["DataCore", "arenaPermissions"]
     authors = ['Fireentity']
-    commands {
-        patreon {
-            description = 'The main plugin command'
-        }
-    }
 }
 
 shadowJar {

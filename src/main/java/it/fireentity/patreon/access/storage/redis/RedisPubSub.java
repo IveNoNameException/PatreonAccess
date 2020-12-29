@@ -1,10 +1,11 @@
-package it.fireentity.patreon.access;
+package it.fireentity.patreon.access.storage.redis;
 
 import com.google.gson.Gson;
 import it.arenacraft.data.core.api.RedisConnection;
 import it.arenacraft.data.core.api.RedisData;
-import it.fireentity.patreon.access.entities.player.PatreonPlayer;
-import it.fireentity.patreon.access.entities.vip.PatreonVip;
+import it.fireentity.patreon.access.PatreonAccess;
+import it.fireentity.patreon.access.entities.PatreonPlayer;
+import it.fireentity.patreon.access.entities.PatreonVip;
 import it.fireentity.patreon.access.enumerations.Config;
 import org.bukkit.ChatColor;
 import redis.clients.jedis.JedisPubSub;
@@ -21,14 +22,14 @@ public class RedisPubSub extends JedisPubSub implements Runnable {
 
     public void sendMessage(String message) {
         RedisConnection redisConnection = RedisData.getConnection();
-        redisConnection.publish(Config.REDIS_CHANNEL.getMessage(), message);
+        redisConnection.publish(patreonAccess.getLocales().getString(Config.REDIS_CHANNEL.getPath()), message);
     }
 
     @Override
     public void onMessage(String s, String s1) {
         Gson gson = new Gson();
         PatreonPlayer patreonPlayer = gson.fromJson(s1, PatreonPlayer.class);
-        String patreonName = patreonPlayer.getPatreonVip().getPatreonName();
+        String patreonName = patreonPlayer.getPatreonVip().getKey();
         Optional<PatreonVip> patreonVip = patreonAccess.getPatreonVipCache().getPatreonVip(patreonName);
         if(patreonVip.isPresent()) {
             patreonAccess.getWhitelist().addPlayer(patreonPlayer.getPlayerName());
@@ -39,7 +40,7 @@ public class RedisPubSub extends JedisPubSub implements Runnable {
 
     @Override
     public void onPMessage(String s, String s1, String s2) {
-
+        
     }
 
     @Override
@@ -67,7 +68,7 @@ public class RedisPubSub extends JedisPubSub implements Runnable {
 
         while (patreonAccess.isEnabled()) {
             try (RedisConnection connection = RedisData.getConnection()) {
-                connection.subscribe(this, new String[]{Config.REDIS_CHANNEL.getMessage()});
+                connection.subscribe(this, patreonAccess.getLocales().getString(Config.REDIS_CHANNEL.getPath()));
             } catch (Exception exception) {
                 patreonAccess.getLogger().warning("Subscriber crashato! Tento il riavvio tra " + (DELAY == 1 ? "un secondo" : DELAY + " secondi") + "...");
             }

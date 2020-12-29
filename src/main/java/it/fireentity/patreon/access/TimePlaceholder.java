@@ -1,13 +1,11 @@
 package it.fireentity.patreon.access;
 
-import it.fireentity.patreon.access.entities.player.PatreonPlayer;
+import it.fireentity.patreon.access.entities.PatreonPlayer;
 import it.fireentity.patreon.access.enumerations.Config;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
-import java.sql.Time;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 public class TimePlaceholder extends PlaceholderExpansion {
 
@@ -19,7 +17,7 @@ public class TimePlaceholder extends PlaceholderExpansion {
 
     @Override
     public String getIdentifier() {
-        return Config.TIME_PLACEHOLDER.getMessage();
+        return patreonAccess.getLocales().getString(Config.TIME_PLACEHOLDER.getPath());
     }
 
     @Override
@@ -36,8 +34,12 @@ public class TimePlaceholder extends PlaceholderExpansion {
     public String onRequest(OfflinePlayer player, String params) {
         Optional<PatreonPlayer> patreonPlayer = patreonAccess.getPatreonPlayerCache().getPlayer(player.getPlayer());
         if(!patreonPlayer.isPresent()) {
-            return Config.FALLBACK_PLACEHOLDER_STRING.getMessage();
+            return patreonAccess.getLocales().getString(Config.FALLBACK_PLACEHOLDER_STRING.getPath());
         }
-        return patreonPlayer.get().getOnlineTime();
+        if(patreonPlayer.get().getOnlineTime().isPresent()) {
+            return patreonPlayer.get().getOnlineTime().get();
+        } else {
+            return patreonAccess.getLocales().getString(Config.PATREON_TIME_EXPIRED_STRING.getPath());
+        }
     }
 }

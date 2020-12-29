@@ -1,35 +1,50 @@
 package it.fireentity.patreon.access.commands.arguments;
 
-import it.fireentity.patreon.access.api.command.AbstractArgument;
-import it.fireentity.patreon.access.api.command.CommandArgumentException;
+import it.fireentity.library.command.argument.AbstractArgument;
+import it.fireentity.patreon.access.PatreonAccess;
 import it.fireentity.patreon.access.cache.PatreonVipCache;
-import it.fireentity.patreon.access.entities.vip.PatreonVip;
+import it.fireentity.patreon.access.entities.PatreonVip;
 import it.fireentity.patreon.access.enumerations.Config;
-import org.bukkit.command.CommandSender;
+import net.md_5.bungee.api.chat.TextComponent;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class PatreonArgument extends AbstractArgument {
     private final PatreonVipCache patreonVipCache;
+    private static PatreonAccess patreonAccess;
 
-    public PatreonArgument(PatreonVipCache patreonVipCache) {
-        super("patreon", false, 1);
+    public PatreonArgument(PatreonAccess patreonAccess, PatreonVipCache patreonVipCache, boolean isOptional) {
+        super("patreon", isOptional, 1);
         this.patreonVipCache = patreonVipCache;
+        PatreonArgument.patreonAccess = patreonAccess;
     }
 
     @Override
-    public Object parse(CommandSender commandSender, String currentArgument, List<String> abstractArgumentIterator) throws CommandArgumentException {
-        if(abstractArgumentIterator.size()!=1) {
-            throw new CommandArgumentException(Config.PATREON_NOT_FOUND.getMessage());
+    public Collection<TextComponent> getPossibleValues() {
+        List<TextComponent> lines = new ArrayList<>();
+        for(PatreonVip patreonVip : patreonVipCache.getPatreonList()) {
+            patreonAccess.getLocales().getString(Config.PATREON_VIP_LINE.getPath(), patreonVip.getPatreonDisplayName(), patreonVip.getOnlineTime());
+        }
+        return lines;
+    }
+
+    @Override
+    public Object parseForConsoleSender(String s, List<String> list) {
+        if(list.size()!=1) {
+            return null;
         }
 
-        Optional<PatreonVip> patreonVip = patreonVipCache.getPatreonVip(abstractArgumentIterator.get(0));
-        if(patreonVip.isPresent()) {
-            return patreonVip.get();
+        Optional<PatreonVip> patreonVip = patreonVipCache.getPatreonVip(list.get(0));
+        return patreonVip.orElse(null);
+    }
+
+    @Override
+    public Object parseForPlayerSender(String s, String s1, List<String> list) {
+        if(list.size()!=1) {
+            return null;
         }
 
-        throw new CommandArgumentException(Config.PATREON_NOT_FOUND.getMessage());
-
+        Optional<PatreonVip> patreonVip = patreonVipCache.getPatreonVip(list.get(0));
+        return patreonVip.orElse(null);
     }
 }

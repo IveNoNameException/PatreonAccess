@@ -1,10 +1,11 @@
-package it.fireentity.patreon.access.entities.player;
+package it.fireentity.patreon.access.entities;
 
-import it.fireentity.patreon.access.entities.vip.PatreonVip;
+import it.fireentity.patreon.access.PatreonAccess;
 import it.fireentity.patreon.access.enumerations.Config;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Getter
@@ -29,10 +30,10 @@ public class PatreonPlayer {
         return patreonVip.getMaxPlayTime() < currentPlayedTime;
     }
 
-    public String getOnlineTime() {
+    public Optional<String> getOnlineTime() {
         long millis = getPatreonVip().getMaxPlayTime() - ((System.currentTimeMillis() - getJoinedTime()) + getCurrentPlayedTime());
         if(millis < 0) {
-            return Config.PATREON_TIME_EXPIRED_STRING.getMessage();
+            return Optional.empty();
         }
         long days = TimeUnit.MILLISECONDS.toDays(millis);
         millis -= TimeUnit.DAYS.toMillis(days);
@@ -42,14 +43,7 @@ public class PatreonPlayer {
         millis -= TimeUnit.MINUTES.toMillis(minutes);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
 
-        return days +
-                " d " +
-                hours +
-                " h " +
-                minutes +
-                " m " +
-                seconds +
-                " s";
+        return Optional.of(days + " d " + hours + " h " + minutes + " m " + seconds + " s");
     }
 
 }
