@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="PatreonAccess:jar">
-    <output-path>$PROJECT_DIR$/../server 1.12.2/plugins</output-path>
-    <root id="archive" name="PatreonAccess.jar">
-      <element id="module-output" name="PatreonAccess.main" />
-      <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources" />
-    </root>
-  </artifact>
-</component>
