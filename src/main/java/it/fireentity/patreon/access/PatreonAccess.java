@@ -68,8 +68,12 @@ public class PatreonAccess extends AbstractPlugin {
     @Override
     protected List<it.fireentity.library.utils.PluginFile> initializeConfigs() {
         List<PluginFile> files = new ArrayList<>();
-        files.add(new PluginFile("patreonConfig", this));
-        files.add(new PluginFile("whitelist", this));
+        PluginFile patreon = new PluginFile("patreon", this);
+        PluginFile whitelist = new PluginFile("whitelist", this);
+        patreon.saveDefault();
+        whitelist.saveDefault();
+        files.add(patreon);
+        files.add(whitelist);
         return files;
     }
 

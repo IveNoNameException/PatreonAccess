@@ -36,7 +36,7 @@ public class RemoveCommand extends Command {
         }
 
         //Check if the player is already removed
-        if(patreonAccess.getWhitelist().getWhitelistedPlayers().contains(customPlayer.get().getKey())) {
+        if(!patreonAccess.getWhitelist().getWhitelistedPlayers().contains(customPlayer.get().getKey())) {
             patreonAccess.getLocales().sendMessage(getPath() + ".player_already_removed",commandSender);
             return;
         }
