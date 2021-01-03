@@ -1,5 +1,0 @@
-time_command_permission: "patreon.time"
-add_command_permission: "patreon.add"
-remove_command_permission: "patreon.remove"
-patreon_main_command_permission: "patreon.main"
-patreon_access_tip_permission: "patreon.tip"

@@ -2,12 +2,16 @@ package it.fireentity.patreon.access.storage.mysql;
 
 import it.arenacraft.data.core.api.MysqlConnection;
 import it.arenacraft.data.core.api.MysqlData;
+import it.fireentity.library.player.CustomPlayer;
+import it.fireentity.library.storage.LoadableDatabaseUtility;
+import it.fireentity.patreon.access.entities.PatreonPlayer;
 import it.fireentity.patreon.access.enumerations.Query;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
-public class PlayersDatabaseUtility {
-    public PlayersDatabaseUtility() {
+public class PlayerDatabaseUtility extends LoadableDatabaseUtility<CustomPlayer, String> {
+    public PlayerDatabaseUtility() {
         try(MysqlConnection mysqlConnection = MysqlData.getConnection()) {
             mysqlConnection.executePreparedUpdate(Query.CREATE_PLAYERS_TABLE.getQuery());
         } catch (SQLException e) {
@@ -15,9 +19,10 @@ public class PlayersDatabaseUtility {
         }
     }
 
-    public void insertPlayer(String player ) {
+    @Override
+    public void insert(CustomPlayer patreonPlayer) {
         try(MysqlConnection mysqlConnection = MysqlData.getConnection()) {
-            mysqlConnection.executePreparedUpdate(Query.INSERT_PLAYER.getQuery(), player, player);
+            mysqlConnection.executePreparedUpdate(Query.INSERT_PLAYER.getQuery(), patreonPlayer.getPlayer().getName(), patreonPlayer.getPlayer().getName());
         } catch (SQLException e) {
             e.printStackTrace();
         }

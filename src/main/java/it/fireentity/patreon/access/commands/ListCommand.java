@@ -1,5 +1,6 @@
 package it.fireentity.patreon.access.commands;
 
+import it.fireentity.library.chatpaging.PageTexture;
 import it.fireentity.library.command.argument.Command;
 import it.fireentity.library.command.nodes.CommandNode;
 import it.fireentity.library.command.row.CommandRow;
@@ -15,8 +16,8 @@ import java.util.List;
 public class ListCommand extends Command {
     private final PatreonAccess patreonAccess;
 
-    public ListCommand(PatreonAccess patreonAccess,CommandNode mainCommandNode) {
-        super(patreonAccess, patreonAccess.getPageTexture().clone(), "list",false,mainCommandNode);
+    public ListCommand(PatreonAccess patreonAccess, PageTexture pageTexture, CommandNode mainCommandNode) {
+        super(patreonAccess, pageTexture.clone(), "list",false,mainCommandNode);
         this.addMessage(getSuccessPath(),"The player name","Passed online time","Type of the patreon","Patreon max online time");
         this.patreonAccess = patreonAccess;
     }
@@ -28,7 +29,7 @@ public class ListCommand extends Command {
         for(PatreonPlayer patreonPlayer : patreonAccess.getPatreonPlayerCache().getPlayers()) {
             if(patreonPlayer.getOnlineTime().isPresent()) {
                 lines.add(new TextComponent(getPlugin().getLocales().getString(getSuccessPath(),
-                        patreonPlayer.getPlayerName(),
+                        patreonPlayer.getKey(),
                         patreonPlayer.getOnlineTime().get(),
                         patreonPlayer.getPatreonVip().getKey(),
                         patreonPlayer.getPatreonVip().getOnlineTime())));

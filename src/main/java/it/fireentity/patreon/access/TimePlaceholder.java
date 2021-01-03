@@ -32,7 +32,7 @@ public class TimePlaceholder extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, String params) {
-        Optional<PatreonPlayer> patreonPlayer = patreonAccess.getPatreonPlayerCache().getPlayer(player.getPlayer());
+        Optional<PatreonPlayer> patreonPlayer = patreonAccess.getPatreonPlayerCache().getPlayer(player.getPlayer().getName());
         if(!patreonPlayer.isPresent()) {
             return patreonAccess.getLocales().getString(Config.FALLBACK_PLACEHOLDER_STRING.getPath());
         }

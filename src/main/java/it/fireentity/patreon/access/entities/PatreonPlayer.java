@@ -1,5 +1,6 @@
 package it.fireentity.patreon.access.entities;
 
+import it.fireentity.library.interfaces.Cacheable;
 import it.fireentity.patreon.access.PatreonAccess;
 import it.fireentity.patreon.access.enumerations.Config;
 import lombok.Getter;
@@ -8,12 +9,11 @@ import lombok.Setter;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-@Getter
-public class PatreonPlayer {
-    private final PatreonVip patreonVip;
+public class PatreonPlayer implements Cacheable<String> {
     private final String playerName;
-    @Setter private long currentPlayedTime;
-    @Setter private long joinedTime;
+    @Getter private final PatreonVip patreonVip;
+    @Getter @Setter private long currentPlayedTime;
+    @Getter @Setter private long joinedTime;
 
     public PatreonPlayer(PatreonVip patreonVip, String playerName, long currentPlayedTime) {
         this.currentPlayedTime = currentPlayedTime;
@@ -46,4 +46,8 @@ public class PatreonPlayer {
         return Optional.of(days + " d " + hours + " h " + minutes + " m " + seconds + " s");
     }
 
+    @Override
+    public String getKey() {
+        return playerName;
+    }
 }

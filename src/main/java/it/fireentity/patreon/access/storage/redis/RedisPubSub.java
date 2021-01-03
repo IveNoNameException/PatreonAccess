@@ -7,7 +7,6 @@ import it.fireentity.patreon.access.PatreonAccess;
 import it.fireentity.patreon.access.entities.PatreonPlayer;
 import it.fireentity.patreon.access.entities.PatreonVip;
 import it.fireentity.patreon.access.enumerations.Config;
-import org.bukkit.ChatColor;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.Optional;
@@ -32,9 +31,8 @@ public class RedisPubSub extends JedisPubSub implements Runnable {
         String patreonName = patreonPlayer.getPatreonVip().getKey();
         Optional<PatreonVip> patreonVip = patreonAccess.getPatreonVipCache().getPatreonVip(patreonName);
         if(patreonVip.isPresent()) {
-            patreonAccess.getWhitelist().addPlayer(patreonPlayer.getPlayerName());
-        } else {
-            patreonAccess.getLogger().severe(ChatColor.RED + "Unable to whitelist this player! Unsynchronized patreon name, check the config");
+            //TODO check here
+            patreonAccess.getPlayerDatabaseUtility();
         }
     }
 

@@ -19,7 +19,7 @@ public class TimeCommand extends Command {
 
     public TimeCommand(PatreonAccess patreonAccess, CommandNode mainCommandNode) {
         super(patreonAccess, "time", false, mainCommandNode);
-        this.addArgument(new PlayerArgument(patreonAccess, false));
+        this.addArgument(new PlayerArgument(patreonAccess, true));
         this.patreonAccess = patreonAccess;
         this.addMessage(getPath() + ".patreon_player_not_found");
         this.addMessage(getPath() + ".patreon_online_time","The time passed of the patreon");
@@ -28,7 +28,12 @@ public class TimeCommand extends Command {
     @Override
     public void execute(CommandSender commandSender, List<String> list, CommandRow commandRow) {
         Player player = (Player) commandSender;
-        Optional<PatreonPlayer> patreonPlayer = patreonAccess.getPatreonPlayerCache().getPlayer((Player) commandSender);
+        Optional<PatreonPlayer> patreonPlayer = patreonAccess.getPatreonPlayerCache().getPlayer(commandSender.getName());
+
+        if(!patreonPlayer.isPresent()) {
+            patreonPlayer = patreonAccess.getPatreonPlayerCache().getPlayer(player.getName());
+        }
+
         if (!patreonPlayer.isPresent()) {
             getPlugin().getLocales().sendMessage(getPath() + ".patreon_player_not_found", commandSender);
             return;

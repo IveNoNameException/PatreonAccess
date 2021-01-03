@@ -23,7 +23,7 @@ public class PatreonArgument extends AbstractArgument {
     public Collection<TextComponent> getPossibleValues() {
         List<TextComponent> lines = new ArrayList<>();
         for(PatreonVip patreonVip : patreonVipCache.getPatreonList()) {
-            patreonAccess.getLocales().getString(Config.PATREON_VIP_LINE.getPath(), patreonVip.getPatreonDisplayName(), patreonVip.getOnlineTime());
+            lines.add( new TextComponent(patreonAccess.getLocales().getString(Config.PATREON_VIP_LINE.getPath(), patreonVip.getPatreonDisplayName(), patreonVip.getOnlineTime())));
         }
         return lines;
     }

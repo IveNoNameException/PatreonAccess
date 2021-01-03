@@ -12,7 +12,8 @@ public enum Config {
     TIME_PLACEHOLDER,
     FALLBACK_PLACEHOLDER_STRING,
     PATREON_TIME_EXPIRED_STRING,
-    PATREON_PLAYER_NOT_FOUND;
+    PATREON_PLAYER_NOT_FOUND,
+    KICK_ERROR;
 
     public String getPath() {
         return this.name().toLowerCase();

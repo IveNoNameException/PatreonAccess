@@ -2,6 +2,8 @@ package it.fireentity.patreon.access.storage.mysql;
 
 import it.arenacraft.data.core.api.MysqlConnection;
 import it.arenacraft.data.core.api.MysqlData;
+import it.fireentity.library.AbstractPlugin;
+import it.fireentity.library.storage.DatabaseSynchronizer;
 import it.fireentity.library.storage.LoadableDatabaseUtility;
 import it.fireentity.patreon.access.entities.PatreonVip;
 import it.fireentity.patreon.access.enumerations.Query;
@@ -12,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class PatreonVipsDatabaseUtility extends LoadableDatabaseUtility<PatreonVip, String> {
-
     public PatreonVipsDatabaseUtility() {
         try (MysqlConnection mysqlConnection = MysqlData.getConnection()) {
             mysqlConnection.executePreparedUpdate(Query.CREATE_PATREON_TYPES_TABLE.getQuery());
