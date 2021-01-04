@@ -64,9 +64,12 @@ public class PatreonPlayerCache implements Listener {
         Optional<PatreonPlayer> patreonPlayer = cache.getValue(event.getPlayer().getName());
         if (patreonPlayer.isPresent()) {
             patreonPlayer.get().setCurrentPlayedTime(patreonPlayer.get().onlinePlayedTime() + patreonPlayer.get().getCurrentPlayedTime());
-            RedisConnection redisConnection = RedisData.getConnection();
-            patreonPlayer.ifPresent(value -> redisConnection.set("patreonaccess:players:" + event.getPlayer().getName(), new Gson().toJson(patreonPlayer.get())));
-            cache.removeValue(patreonPlayer.get().getKey());
+            try (RedisConnection redisConnection = RedisData.getConnection()) {
+                patreonPlayer.ifPresent(value -> redisConnection.set("patreonaccess:players:" + event.getPlayer().getName(), new Gson().toJson(patreonPlayer.get())));
+                cache.removeValue(patreonPlayer.get().getKey());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

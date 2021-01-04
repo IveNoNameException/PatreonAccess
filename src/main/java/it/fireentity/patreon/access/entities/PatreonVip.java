@@ -19,6 +19,21 @@ public class PatreonVip implements Cacheable<String> {
         return patreonName;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PatreonVip that = (PatreonVip) o;
+
+        return patreonName.equals(that.patreonName);
+    }
+
+    @Override
+    public int hashCode() {
+        return patreonName.hashCode();
+    }
+
     public String getOnlineTime() {
         long millis = maxPlayTime;
         long days = TimeUnit.MILLISECONDS.toDays(millis);

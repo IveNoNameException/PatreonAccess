@@ -5,7 +5,9 @@ import it.fireentity.patreon.access.PatreonAccess;
 import it.fireentity.patreon.access.enumerations.Config;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftWeather;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +46,16 @@ public class PatreonPlayer implements Cacheable<String> {
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
 
         return Optional.of(days + " d " + hours + " h " + minutes + " m " + seconds + " s");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PatreonPlayer that = (PatreonPlayer) o;
+
+        return playerName.equals(that.playerName);
     }
 
     @Override

@@ -42,6 +42,7 @@ public class RemoveCommand extends Command {
 
                 removePlayer(patreonPlayer.get().get());
             });
+            return;
         }
 
         if (!patreonPlayer.get().isPresent()) {

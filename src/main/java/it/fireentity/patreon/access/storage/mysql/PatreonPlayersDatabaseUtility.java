@@ -45,7 +45,7 @@ public class PatreonPlayersDatabaseUtility extends LoadableDatabaseUtility<Patre
     @Override
     public void insert(PatreonPlayer patreonPlayer) {
         //Insert the player in the players table
-        patreonAccess.getAPIFireLibrary().getPlayers().getPlayer(patreonPlayer.getKey()).ifPresent(player -> patreonAccess.getPlayerDatabaseUtility().insert(player));
+        patreonAccess.getPlayerDatabaseUtility().insert(patreonPlayer);
 
         try(MysqlConnection mysqlConnection = MysqlData.getConnection()) {
             mysqlConnection.executePreparedUpdate(Query.INSERT_PATREON_PLAYER.getQuery(),patreonPlayer.getKey(),patreonPlayer.getPatreonVip().getKey(),0,patreonPlayer.getKey(),patreonPlayer.getPatreonVip().getKey(),0);

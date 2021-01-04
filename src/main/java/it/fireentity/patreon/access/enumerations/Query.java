@@ -3,15 +3,15 @@ package it.fireentity.patreon.access.enumerations;
 import lombok.Getter;
 
 public enum Query {
-    CREATE_PLAYERS_TABLE("CREATE TABLE IF NOT EXISTS `hub_patreonaccess_players`(`id` INT AUTO_INCREMENT PRIMARY KEY, `player` VARCHAR(16) UNIQUE)"),
+    CREATE_PLAYERS_TABLE("CREATE TABLE IF NOT EXISTS `hub_patreonaccess_players`(`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, `player` VARCHAR(16) UNIQUE NOT NULL)"),
     CRATE_PATREON_PLAYERS_TABLE("CREATE TABLE IF NOT EXISTS `hub_patreonaccess_patreon_players`(" +
-            "`player` INT, " +
-            "`patreonType` INT, " +
-            "`milliseconds` BIGINT UNSIGNED, " +
+            "`player` INT NOT NULL, " +
+            "`patreonType` INT NOT NULL, " +
+            "`milliseconds` BIGINT UNSIGNED NOT NULL, " +
             "FOREIGN KEY (`patreonType`) REFERENCES `hub_patreonaccess_patreonTypes`(`id`) ON DELETE CASCADE, " +
             "FOREIGN KEY (`player`) REFERENCES `hub_patreonaccess_players`(`id`) ON DELETE CASCADE, " +
             "PRIMARY KEY (`player`))"),
-    CREATE_PATREON_TYPES_TABLE("CREATE TABLE IF NOT EXISTS `hub_patreonaccess_patreonTypes`(`id` INT AUTO_INCREMENT PRIMARY KEY, `patreonType` VARCHAR(30) UNIQUE)"),
+    CREATE_PATREON_TYPES_TABLE("CREATE TABLE IF NOT EXISTS `hub_patreonaccess_patreonTypes`(`id` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, `patreonType` VARCHAR(30) UNIQUE NOT NULL)"),
     /**
      * Patreon vips queries
      */
